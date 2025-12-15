@@ -83,18 +83,21 @@ export default class JobApplicationGroupsController {
 
     const id = params.id
     const userId = auth.user!.id
-    const jobApplicationGroup = await JobApplicationGroup.query()
+    await JobApplicationGroup.query().where('id', id).where('userId', userId).firstOrFail()
+
+    const body = request.body()
+    const data = await updateJobApplicationGroupValidator.validate(body)
+    await JobApplicationGroup.query()
+      .where('id', id)
+      .update({ ...data })
+
+    const updatedGroup = await JobApplicationGroup.query()
       .where('id', id)
       .where('userId', userId)
       .firstOrFail()
 
-    const body = request.body()
-    const data = await updateJobApplicationGroupValidator.validate(body)
-    jobApplicationGroup.merge(data)
-    await jobApplicationGroup.save()
-
     return {
-      data: jobApplicationGroup,
+      data: updatedGroup,
     }
   }
 
