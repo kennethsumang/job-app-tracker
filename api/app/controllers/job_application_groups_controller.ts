@@ -20,6 +20,7 @@ export default class JobApplicationGroupsController {
     const limit = Number.parseInt(request.qs().limit || '10', 10)
     const user = auth.user!
     const jobApplicationGroups = await JobApplicationGroup.query()
+      .select('*')
       .whereHas('user', (query) => {
         return query.where('id', user.id)
       })
@@ -62,6 +63,7 @@ export default class JobApplicationGroupsController {
     const id = params.id
     const userId = auth.user!.id
     const jobApplicationGroup = await JobApplicationGroup.query()
+      .select('*')
       .where('id', id)
       .where('userId', userId)
       .firstOrFail()
@@ -92,6 +94,7 @@ export default class JobApplicationGroupsController {
       .update({ ...data })
 
     const updatedGroup = await JobApplicationGroup.query()
+      .select('*')
       .where('id', id)
       .where('userId', userId)
       .firstOrFail()

@@ -14,6 +14,8 @@ export default class extends BaseSchema {
         .onDelete('CASCADE')
       table.string('company_name').notNullable()
       table.string('position').notNullable()
+      table.text('requirements').defaultTo('')
+      table.text('responsibilities').defaultTo('')
       table
         .enum('status', [
           'draft',

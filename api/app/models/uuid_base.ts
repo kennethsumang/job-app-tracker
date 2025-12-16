@@ -9,7 +9,7 @@ export default class UuidBaseModel extends BaseModel {
 
   @column({
     isPrimary: true,
-    consume: (_value, _attribute, model) => model.$getAttribute('id') as string,
+    serialize: (value) => value,
   })
   declare id: string
 }
