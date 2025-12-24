@@ -1,6 +1,11 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import JobApplicationGroup from '#models/job_application'
-import { fetchJobApplicationsValidator } from '#validators/job_application'
+import {
+  fetchJobApplicationsValidator,
+  JobApplicationStatus,
+  JobApplicationWorkSetup,
+} from '#validators/job_application'
+import JobApplication from '#models/job_application'
 
 export default class JobApplicationsController {
   /**
@@ -47,20 +52,105 @@ export default class JobApplicationsController {
   /**
    * Handle form submission for the create action
    */
-  async store({ request }: HttpContext) {}
+  async store({ auth, request, response }: HttpContext) {
+    if (!auth.isAuthenticated) {
+      return response.unauthorized({
+        error: 'You must be logged in to access this resource',
+      })
+    }
+
+    const body = request.body()
+    const data = await fetchJobApplicationsValidator.validate(body)
+    const jobApplication = await JobApplicationGroup.create({
+      ...data,
+      status: data.status as JobApplicationStatus,
+      workSetup: data.workSetup as JobApplicationWorkSetup,
+    })
+    return {
+      data: jobApplication,
+    }
+  }
 
   /**
    * Show individual record
    */
-  async show({ params }: HttpContext) {}
+  async show({ auth, params, response }: HttpContext) {
+    if (!auth.isAuthenticated) {
+      return response.unauthorized({
+        error: 'You must be logged in to access this resource',
+      })
+    }
+
+    const id = params.id
+    const userId = auth.user!.id
+    const jobApplication = await JobApplication.query()
+      .select('*')
+      .where('id', id)
+      .whereHas('jobApplicationGroup', (qb) => {
+        qb.where('userId', userId)
+      })
+      .firstOrFail()
+
+    return {
+      data: jobApplication,
+    }
+  }
 
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request }: HttpContext) {}
+  async update({ auth, request, params, response }: HttpContext) {
+    if (!auth.isAuthenticated) {
+      return response.unauthorized({
+        error: 'You must be logged in to access this resource',
+      })
+    }
+
+    const id = params.id
+    const userId = auth.user!.id
+    await JobApplicationGroup.query()
+      .where('id', id)
+      .whereHas('jobApplicationGroup', (qb) => {
+        qb.where('userId', userId)
+      })
+      .firstOrFail()
+    const body = request.body()
+    const data = await fetchJobApplicationsValidator.validate(body)
+
+    await JobApplication.query()
+      .where('id', id)
+      .update({ ...data })
+
+    const updatedJobApplication = await JobApplication.query()
+      .select('*')
+      .where('id', id)
+      .firstOrFail()
+
+    return {
+      data: updatedJobApplication,
+    }
+  }
 
   /**
    * Delete record
    */
-  async destroy({ params }: HttpContext) {}
+  async destroy({ auth, params, response }: HttpContext) {
+    if (!auth.isAuthenticated) {
+      return response.unauthorized({
+        error: 'You must be logged in to access this resource',
+      })
+    }
+
+    const id = params.id
+    const userId = auth.user!.id
+    const jobApplication = await JobApplication.query()
+      .where('id', id)
+      .whereHas('jobApplicationGroup', (qb) => {
+        qb.where('userId', userId)
+      })
+      .firstOrFail()
+
+    await jobApplication.delete()
+    return response.noContent()
+  }
 }
