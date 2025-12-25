@@ -44,6 +44,7 @@ export default class JobApplicationsController {
       .if(query.workSetup, (qb) => {
         qb.where('work_setup', query.workSetup)
       })
+      .whereNull('deleted_at')
       .paginate(page, limit)
 
     return jobApplications
@@ -132,7 +133,7 @@ export default class JobApplicationsController {
   }
 
   /**
-   * Delete record
+   * Delete record (soft delete)
    */
   async destroy({ auth, params, response }: HttpContext) {
     if (!auth.isAuthenticated) {
@@ -143,14 +144,14 @@ export default class JobApplicationsController {
 
     const id = params.id
     const userId = auth.user!.id
-    const jobApplication = await JobApplication.query()
+    await JobApplication.query()
       .where('id', id)
       .whereHas('jobApplicationGroup', (qb) => {
         qb.where('userId', userId)
       })
       .firstOrFail()
 
-    await jobApplication.delete()
+    await JobApplication.query().where('id', id).update({ deletedAt: new Date() })
     return response.noContent()
   }
 }
