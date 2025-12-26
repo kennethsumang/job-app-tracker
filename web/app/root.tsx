@@ -15,6 +15,7 @@ import {
 } from '@mantine/core'
 import './app.css'
 import '@mantine/core/styles.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -30,6 +31,7 @@ export const links: LinksFunction = () => [
 ]
 
 export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const queryClient = new QueryClient()
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
@@ -40,7 +42,11 @@ export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
         <Links />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <MantineProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </MantineProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

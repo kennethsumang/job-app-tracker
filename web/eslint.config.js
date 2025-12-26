@@ -21,6 +21,14 @@ export default [
           jsx: true,
         },
       },
+      globals: {
+        fetch: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        Headers: 'readonly',
+        RequestInit: 'readonly',
+        ResponseInit: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': tseslint,
