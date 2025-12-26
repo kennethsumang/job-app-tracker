@@ -7,10 +7,6 @@
     {
       "name": "web",
       "path": "web"
-    },
-    {
-      "name": "job-app-tracker",
-      "path": "."
     }
   ]
 }
