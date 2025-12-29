@@ -40,8 +40,18 @@ export default function LoginFormComponent() {
 
   return (
     <form onSubmit={form.onSubmit((values) => mutation.mutate(values))}>
-      <TextInput label="Email Address" placeholder="you@example.com" required />
-      <PasswordInput label="Password" placeholder="Your password" required />
+      <TextInput
+        label="Email Address"
+        placeholder="you@example.com"
+        required
+        {...form.getInputProps('email')}
+      />
+      <PasswordInput
+        label="Password"
+        placeholder="Your password"
+        required
+        {...form.getInputProps('password')}
+      />
       <Button type="submit" fullWidth mt="md">
         Login
       </Button>
