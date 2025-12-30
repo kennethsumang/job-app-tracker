@@ -9,7 +9,7 @@ export default class AuthController {
   async register({ request }: HttpContext) {
     const body = request.body()
     const data = await registerValidator.validate(body)
-    const user = await User.create(data)
+    const user = await User.create(_.omit(data, ['retypePassword']))
     return {
       data: _.omit(user.toJSON(), ['password']),
     }

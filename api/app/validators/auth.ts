@@ -5,6 +5,7 @@ export const registerValidator = vine.compile(
     name: vine.string().minLength(3).maxLength(100),
     email: vine.string().email().unique({ table: 'users', column: 'email' }),
     password: vine.string().minLength(5),
+    retypePassword: vine.string().minLength(5).sameAs('password'),
   })
 )
 
