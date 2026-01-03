@@ -4,9 +4,11 @@ import { useForm } from '@mantine/form'
 import { useMutation } from '@tanstack/react-query'
 
 import type { RegisterForm } from '~/types/auth'
-import { request } from '~/libs/request.library'
+
+import AuthService from '../../services/auth.service'
 
 export default function RegisterFormComponent() {
+  const authService = new AuthService()
   const form = useForm({
     initialValues: {
       name: '',
@@ -24,17 +26,7 @@ export default function RegisterFormComponent() {
 
   const mutation = useMutation({
     mutationFn: (data: RegisterForm) => {
-      return request('/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        }),
-      })
+      return authService.register(data)
     },
     onSuccess: (data) => {
       // Handle successful registration

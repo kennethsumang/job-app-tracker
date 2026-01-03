@@ -4,9 +4,11 @@ import { useForm } from '@mantine/form'
 import { useMutation } from '@tanstack/react-query'
 
 import type { LoginCredentials } from '~/types/auth'
-import { request } from '~/libs/request.library'
+
+import AuthService from '../../services/auth.service'
 
 export default function LoginFormComponent() {
+  const authService = new AuthService()
   const form = useForm({
     initialValues: {
       email: '',
@@ -20,13 +22,7 @@ export default function LoginFormComponent() {
 
   const mutation = useMutation({
     mutationFn: (credentials: LoginCredentials) => {
-      return request('/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      })
+      return authService.login(credentials)
     },
     onSuccess: (data) => {
       // Handle successful login

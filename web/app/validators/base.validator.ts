@@ -1,14 +1,46 @@
-import { object } from 'yup'
+import * as yup from 'yup'
 
-export default class BaseValidator {
-  schema = object({})
+/**
+ * Custom Validation Exception
+ * Thrown when validation fails with an array of error messages
+ */
+export class ValidationException extends Error {
+  public errors: string[]
 
-  async validate<T>(data: Record<string, unknown>): Promise<T> {
-    // validate data against the schema then return null if no errors or array of error messages
-    const validatedData = await this.schema.validate(data, {
-      abortEarly: false,
-      stripUnknown: true,
-    })
-    return validatedData as T
+  constructor(errors: string[]) {
+    super('Validation failed')
+    this.name = 'ValidationException'
+    this.errors = errors
+  }
+}
+
+/**
+ * Base Validator Class
+ * Provides validation functionality using yup schema
+ */
+export class BaseValidator {
+  /**
+   * Schema to be overridden by child classes
+   * This should be a yup schema object for validation
+   */
+  protected static schema: yup.Schema = yup.object().shape({})
+
+  /**
+   * Validates data against the schema
+   * @param data - The data to validate (type: unknown)
+   * @returns null if validation passes
+   * @throws ValidationException if validation fails with array of error messages
+   */
+  static async validate(data: unknown): Promise<null> {
+    try {
+      await this.schema.validate(data, { abortEarly: false })
+      return null
+    } catch (error) {
+      if (error instanceof yup.ValidationError) {
+        const errorMessages = error.inner.map((err) => err.message)
+        throw new ValidationException(errorMessages)
+      }
+      throw error
+    }
   }
 }
